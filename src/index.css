@@ -59,6 +59,7 @@ body {
 
 button {
   --bg: rgb(43, 46, 43);
+  cursor: pointer;
 }
 
 /* #region NAVBAR */
@@ -269,6 +270,16 @@ svg.cart {
 
 .cartItem__title {
   grid-area: title;
+}
+
+.cartItem__remove {
+  grid-area: close;
+}
+
+.cartItem__remove button {
+  background: none;
+  border: none;
+  width: 2rem;
 }
 
 .cartItem__quantity__container {

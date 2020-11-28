@@ -1,8 +1,10 @@
 import React from "react";
 
 function Products(props) {
-  if (props.loading) return <p>Loading...</p>;
+  if (props.loading) return null;
   if (props.error) return <p>Error: {props.error}</p>;
+
+  const { currency } = props;
 
   return (
     <div className="products__container">
@@ -12,7 +14,9 @@ function Products(props) {
           <h2 className="item__title">{item.title}</h2>
           <div className="item__price__container">
             <div>From:</div>
-            <div>ZAR {item.price.toFixed(2)}</div>
+            <div>
+              {currency} {item.price.toFixed(2)}
+            </div>
           </div>
           <button
             onClick={() => props.addToCart(item.id)}

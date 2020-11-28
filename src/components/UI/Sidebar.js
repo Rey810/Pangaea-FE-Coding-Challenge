@@ -1,5 +1,5 @@
 import React from "react";
-
+import RemoveButton from "./RemoveButton";
 import { useQuery, gql } from "@apollo/client";
 
 // GraphQL query
@@ -10,10 +10,31 @@ const CURRENCIES = gql`
 `;
 
 function Sidebar(props) {
+  // used to populate dropdown (currency options)
   const { loading, error, data } = useQuery(CURRENCIES);
-  // prop received from app upon button click (to open sidebar)
-  const { open, cart, incrementProduct, decrementProduct, cartTotal } = props;
 
+  // from <App />
+  const {
+    // is the cart open?
+    open,
+    // removes item from cart
+    removeProduct,
+    closeSideBar,
+    // all the cart items
+    cart,
+    // incrementor fn
+    incrementProduct,
+    // decrementor fn
+    decrementProduct,
+    // total price
+    cartTotal,
+    // fetch data and set currency fn
+    refetchProducts,
+    // current currency
+    cartCurrency,
+  } = props;
+
+  // before currency data, currencies === null
   let currencies = null;
 
   // sets available options in dropdown if currency data is available
@@ -25,19 +46,26 @@ function Sidebar(props) {
     ));
   }
 
+  // error from graphql query
   if (error) {
     console.error(error);
     return;
   }
 
+  // loading from graphql query
   if (loading) return <option>Loading</option>;
 
+  // initial sidebar display
   let cartItems = <p>No items in cart...</p>;
+
+  // if there are items in the cart
   if (cart) {
     cartItems = cart.map((item) => {
       return (
+        // cart item card
         <div key={item.id} className="cartItem__container">
           <div className="cartItem__title">{item.title}</div>
+          <RemoveButton removeFromCart={() => removeProduct(item.id)} />
           <div className="cartItem__quantity__container">
             <div className="buttons__container">
               <button
@@ -55,7 +83,10 @@ function Sidebar(props) {
               </button>
             </div>
           </div>
-          <div className="cartItem__price">{item.price.toFixed(2)}</div>
+          <div className="cartItem__price">
+            <span>{cartCurrency} </span>
+            <span>{item.price.toFixed(2)}</span>
+          </div>
           <div className="cartItem__image">
             <img src={item.image_url} alt={item.title} />
           </div>
@@ -69,11 +100,11 @@ function Sidebar(props) {
 
   return (
     <div className={`sidebar__container ${openStatus}`}>
-      <div className="sidebar__backdrop" onClick={props.closeSideBar}></div>
+      <div className="sidebar__backdrop" onClick={closeSideBar}></div>
       <div className="sidebar">
         <div className="sidebar__header">
           <div className="sidebar__header-top">
-            <div className="sidebar__close" onClick={props.closeSideBar}>
+            <div className="sidebar__close" onClick={closeSideBar}>
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -93,7 +124,7 @@ function Sidebar(props) {
               <span>YOUR CART</span>
             </div>
           </div>
-          <div className="currency__dropdown">
+          <div className="currency__dropdown" onChange={refetchProducts}>
             <select name="currency" id="currency-select">
               {currencies}
             </select>
@@ -102,8 +133,10 @@ function Sidebar(props) {
         <div className="sidebar__content">{cartItems}</div>
         <div className="sidebar__footer">
           <div className="subtotal__container">
-            <span>Subtotal</span>
-            <span>ZAR {cartTotal}</span>
+            <span>Subtotal </span>
+            <span>
+              {cartCurrency} {cartTotal}
+            </span>
           </div>
         </div>
       </div>

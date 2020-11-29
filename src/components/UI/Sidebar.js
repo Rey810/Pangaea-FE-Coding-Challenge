@@ -32,10 +32,24 @@ function Sidebar(props) {
     refetchProducts,
     // current currency
     cartCurrency,
+    // is there an error in <App/>
+    parentError,
   } = props;
 
-  // before currency data, currencies === null
+  // error from currency graphql query
+  if (error) {
+    console.error(error);
+  }
+
+  //determines whether sidebar is open or closed
+  let openStatus = open ? "open" : "closed";
+
+  // before currency data is ready
   let currencies = null;
+  // when currencies are being loaded
+  if (loading) {
+    currencies = <option value="loading">Loading...</option>;
+  }
 
   // sets available options in dropdown if currency data is available
   if (data) {
@@ -46,15 +60,6 @@ function Sidebar(props) {
     ));
   }
 
-  // error from graphql query
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  // loading from graphql query
-  if (loading) return <option>Loading</option>;
-
   // initial sidebar display
   let cartItems = <p>No items in cart...</p>;
 
@@ -64,12 +69,15 @@ function Sidebar(props) {
       return (
         // cart item card
         <div key={item.id} className="cartItem__container">
-          <div className="cartItem__title">{item.title}</div>
+          <div className="cartItem__title">
+            <h6>{item.title}</h6>
+          </div>
           <RemoveButton removeFromCart={() => removeProduct(item.id)} />
           <div className="cartItem__quantity__container">
             <div className="buttons__container">
               <button
                 className="quantity__minus"
+                disabled={parentError}
                 onClick={() => decrementProduct(item.id)}
               >
                 -
@@ -77,6 +85,7 @@ function Sidebar(props) {
               <span className="cartItem__quantity">{item.quantity}</span>
               <button
                 className="quantity__plus"
+                disabled={parentError}
                 onClick={() => incrementProduct(item.id)}
               >
                 +
@@ -85,7 +94,7 @@ function Sidebar(props) {
           </div>
           <div className="cartItem__price">
             <span>{cartCurrency} </span>
-            <span>{item.price.toFixed(2)}</span>
+            <span>{(item.price * item.quantity).toFixed(2)}</span>
           </div>
           <div className="cartItem__image">
             <img src={item.image_url} alt={item.title} />
@@ -94,9 +103,6 @@ function Sidebar(props) {
       );
     });
   }
-
-  //determines whether sidebar is open or closed
-  let openStatus = open ? "open" : "closed";
 
   return (
     <div className={`sidebar__container ${openStatus}`}>
@@ -121,7 +127,7 @@ function Sidebar(props) {
               </svg>
             </div>
             <div className="sidebar__title">
-              <span>YOUR CART</span>
+              <h5>YOUR CART</h5>
             </div>
           </div>
           <div className="currency__dropdown" onChange={refetchProducts}>
@@ -135,8 +141,13 @@ function Sidebar(props) {
           <div className="subtotal__container">
             <span>Subtotal </span>
             <span>
-              {cartCurrency} {cartTotal}
+              {cartCurrency} {cartTotal.toFixed(2)}
             </span>
+          </div>
+          <div className="subtotal__checkout">
+            <button type="button" onClick={() => alert("Off we goooooo!")}>
+              PROCEED TO CHECKOUT
+            </button>
           </div>
         </div>
       </div>

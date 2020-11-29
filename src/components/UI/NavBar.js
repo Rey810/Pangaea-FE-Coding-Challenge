@@ -1,11 +1,14 @@
 import React from "react";
+import logo from "../../assets/logo.png";
 
 function NavBar(props) {
   let { cartSize, openCart } = props;
   return (
     <nav>
       <div className="header__left">
-        <li className="nav__item logo">LUMIN</li>
+        <li className="nav__item logo">
+          <img src={logo} alt="Lumin Logo" />
+        </li>
         <li className="nav__item">Shop</li>
         <li className="nav__item">Learn</li>
       </div>
